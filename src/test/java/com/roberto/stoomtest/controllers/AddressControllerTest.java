@@ -3,6 +3,7 @@ package com.roberto.stoomtest.controllers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -72,8 +73,15 @@ public class AddressControllerTest {
         when(addressService.update(eq(existingId), any())).thenReturn(address);
 
         doNothing().when(addressService).delete(existingId);
-        //doThrow(ResourceNotFoundException.class).when(service).delete(nonExistingId);
-        //doThrow(DataIntegrityViolationException.class).when(service).delete(dependentId);
+        doThrow(EntityNotFound.class).when(addressService).delete(nonExistingId);
+    }
+
+    @Test
+    public void deleteWhenNonExistingIdShouldReturnNotFound() throws Exception {
+        ResultActions result = mockMvc.perform(delete("/address/{id}", nonExistingId)
+            .accept(MediaType.APPLICATION_JSON));
+        
+        result.andExpect(status().isNotFound());
     }
 
     @Test
@@ -105,6 +113,16 @@ public class AddressControllerTest {
         );
 
         result.andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void findByIdWhenNonExistingIdShouldReturnNotFound() throws Exception {
+        ResultActions result = mockMvc.perform(
+            get("/address/{id}", nonExistingId)
+            .accept(MediaType.APPLICATION_JSON)
+        );
+
+        result.andExpect(status().isNotFound());
     }
 
     @Test
