@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -107,12 +108,16 @@ public class AddressControllerTest {
 
     @Test
     public void insertAddressShouldReturnAddress() throws Exception {
+        Address newAddress = address;
+        newAddress.setId(null);
+        String jsonBody = objectMapper.writeValueAsString(newAddress);
         ResultActions result = mockMvc.perform(
-            delete("/address/{id}", existingId)
-            .accept(MediaType.APPLICATION_JSON)
-        );
+            post("/address")
+            .content(jsonBody)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON));
 
-        result.andExpect(status().isNoContent());
+        result.andExpect(status().isCreated());
     }
 
     @Test
